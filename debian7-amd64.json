@@ -1,0 +1,66 @@
+{
+  "builders": [
+    {
+      "type": "virtualbox",
+      "name": "debian7-amd64",
+      "boot_wait": "10s",
+      "disk_size": 32768,
+      "guest_additions_mode": "disable",
+      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+      "guest_os_type": "Debian_64",
+      "headless": true,
+      "http_directory": "http",
+      "iso_checksum": "e7e9433973f082a297793c3c5010b2c5",
+      "iso_checksum_type": "md5",
+      "iso_url": "http://cdimage.debian.or.jp/7.4.0/amd64/iso-cd/debian-7.4.0-amd64-netinst.iso",
+      "shutdown_command": "echo 'vagrant' | sudo -S shutdown -h now",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "30m",
+      "virtualbox_version_file": ".vbox_version",
+      "vboxmanage": [
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--memory",
+          "512"
+        ],
+        [
+          "modifyvm",
+          "{{.Name}}",
+          "--cpus",
+          "1"
+        ]
+      ],
+      "boot_command": [
+        "<esc><wait>",
+        "auto url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed-debian7.cfg ",
+        "locale=ja_JP.UTF-8 ",
+        "netcfg/get_hostname={{ .Name }} ",
+        "netcfg/get_domain=localdomain ",
+        "<enter><wait>"
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "scripts": [
+        "scripts/vagrant.sh",
+        "scripts/cleanup.sh"
+      ],
+      "override": {
+        "debian7-amd64": {
+          "execute_command": "echo 'vagrant'|sudo -S sh '{{.Path}}'"
+        }
+      }
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vagrant"
+      "output": "debian7-amd64.box"
+    }
+  ]
+}
